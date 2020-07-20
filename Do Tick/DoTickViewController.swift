@@ -10,12 +10,19 @@ import UIKit
 
 class DoTickViewController: UITableViewController {
     
+    //user defaults
+    let defaults = UserDefaults.standard
     
     var itemArray = ["Dind Mike", "car", "love"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        //using user defaults to retrieve data locally
+        if let  items = defaults.array(forKey: "TodoListArray") as? [String]{
+            itemArray = items
+        }
         
         
     }
@@ -31,6 +38,9 @@ class DoTickViewController: UITableViewController {
             
             if textfield.text != nil{
                 self.itemArray.append(textfield.text!)
+                
+                //using user defaults to add data locally
+                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 self.tableView.reloadData()
             }
             
