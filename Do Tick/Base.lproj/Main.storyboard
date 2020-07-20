@@ -29,7 +29,13 @@
                             <outlet property="delegate" destination="RbS-cU-l3Q" id="KhJ-Vw-RdT"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Do Tick" id="ot9-al-Ghf"/>
+                    <navigationItem key="navigationItem" title="Do Tick" id="ot9-al-Ghf">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="6hx-3K-VBx">
+                            <connections>
+                                <action selector="addButtonPressed:" destination="RbS-cU-l3Q" id="fZv-ys-SMe"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TIx-OK-G9N" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

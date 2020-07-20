@@ -11,7 +11,7 @@ import UIKit
 class DoTickViewController: UITableViewController {
     
     
-    let itemArray = ["Dind Mike", "car", "love"]
+    var itemArray = ["Dind Mike", "car", "love"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,9 +19,35 @@ class DoTickViewController: UITableViewController {
         
         
     }
+    //MARK: - add new items
     
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textfield = UITextField()
+        
+        let alert = UIAlertController(title: "Add New Do Tick Item", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+              // what will happen when user clicks ui alert
+            
+            if textfield.text != nil{
+                self.itemArray.append(textfield.text!)
+                self.tableView.reloadData()
+            }
+            
+              
+          }
+        
+        //add textfield to ui alert
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textfield = alertTextField
+        }
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
     
-    
+  
+   
     
 }
 //MARK: - TableView Datasource Method
