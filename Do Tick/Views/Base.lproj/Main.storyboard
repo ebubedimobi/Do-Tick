@@ -7,6 +7,45 @@
     </dependencies>
     <scenes>
         <!--Do Tick-->
+        <scene sceneID="QK2-S4-hre">
+            <objects>
+                <tableViewController id="MR8-nI-MDw" customClass="CategoryTableViewController" customModule="Do_Tick" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="3rO-9s-EQb">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CategoryCell" id="SNM-cL-7ws">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="SNM-cL-7ws" id="KzJ-TQ-8MA">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="MR8-nI-MDw" id="CKI-F9-ewH"/>
+                            <outlet property="delegate" destination="MR8-nI-MDw" id="oyG-cN-Uyh"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Do Tick" id="cOp-Qp-e36">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="2Fp-qs-MOa">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="MR8-nI-MDw" id="dei-w8-bUf"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <segue destination="RbS-cU-l3Q" kind="show" identifier="goToItems" id="rRs-pM-1yz"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="QfO-wT-bsW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1638" y="147"/>
+        </scene>
+        <!--Do Tick-->
         <scene sceneID="f8L-9o-8kP">
             <objects>
                 <tableViewController id="RbS-cU-l3Q" customClass="DoTickViewController" customModule="Do_Tick" customModuleProvider="target" sceneMemberID="viewController">
@@ -14,9 +53,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="Rxi-e2-xoS">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="RbS-cU-l3Q" id="q1a-zG-nz5"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ToDoItemCell" id="W7X-QA-Ohl">
-                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <rect key="frame" x="0.0" y="72" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="W7X-QA-Ohl" id="A8o-Oa-321">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
@@ -31,6 +78,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Do Tick" id="ot9-al-Ghf">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="6hx-3K-VBx">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="addButtonPressed:" destination="RbS-cU-l3Q" id="fZv-ys-SMe"/>
                             </connections>
@@ -39,7 +87,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TIx-OK-G9N" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1781.1594202898552" y="124.55357142857142"/>
+            <point key="canvasLocation" x="2329" y="117"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="WqE-mc-AsF">
@@ -56,7 +104,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="RbS-cU-l3Q" kind="relationship" relationship="rootViewController" id="13b-bX-t30"/>
+                        <segue destination="MR8-nI-MDw" kind="relationship" relationship="rootViewController" id="cdU-6z-HZz"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KhK-wD-3vr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
