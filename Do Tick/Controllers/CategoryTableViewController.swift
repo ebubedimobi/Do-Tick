@@ -140,3 +140,37 @@ class CategoryTableViewController: UITableViewController {
     
     
 }
+
+
+//MARK: - UISearchBarDelegate
+//MARK: - Query from Realm
+
+extension CategoryTableViewController: UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        categories = categories?.filter("name CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        
+        tableView.reloadData()
+        
+    }
+    
+    
+    //starts searching once person starts typing
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text?.count == 0{
+            
+            loadCategories()
+            //same as  searchBar.endEditing(true)
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+            loadCategories()
+        }else {
+           categories = categories?.filter("name CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+            tableView.reloadData()
+        }
+    }
+}
