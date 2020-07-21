@@ -13,6 +13,12 @@ class DoTickViewController: UITableViewController {
     
     
     var itemArray = [Item]()
+    var selectedCategory: CategoryItem? {
+        
+        didSet{
+            loadItems()
+        }
+    }
     
     //creating a file path
     //let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -20,9 +26,6 @@ class DoTickViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
-        
-        
         
     }
     //MARK: - add new items
@@ -42,6 +45,9 @@ class DoTickViewController: UITableViewController {
                 let newItem = Item(context: self.context)
                 newItem.title = textfield.text!
                 newItem.done = false
+                
+                //give the name of new item the name of parent category
+                newItem.parentCategory = self.selectedCategory
                 self.itemArray.append(newItem)
                 self.saveItems()
                 
@@ -61,6 +67,7 @@ class DoTickViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    //MARK: - save items
     
     func saveItems(){
         
@@ -73,8 +80,16 @@ class DoTickViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
+    //MARK: - load items
+    
     // = means if you don't pass a request parameter it will take a default value
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest() ){
+    func loadItems(){
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        let predicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name! )
+        
+        request.predicate = predicate
+        
         do{
             itemArray = try context.fetch(request)
         }catch{
@@ -85,6 +100,24 @@ class DoTickViewController: UITableViewController {
         tableView.reloadData()
         
     }
+    
+    func loadItemsFromSearch(with request: NSFetchRequest<Item>, and predicate: NSPredicate ){
+         let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name! )
+        
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
+        
+        request.predicate = compoundPredicate
+        
+         do{
+             itemArray = try context.fetch(request)
+         }catch{
+             print("Error fetching data from context")
+             
+         }
+         
+         tableView.reloadData()
+         
+     }
     
 }
 //MARK: - TableView Datasource Method
@@ -160,7 +193,7 @@ extension DoTickViewController: UISearchBarDelegate{
         
         request.sortDescriptors = [sortDescriptor]
         
-        loadItems(with: request)
+        loadItemsFromSearch(with: request, and: predicate)
         
         
         
@@ -187,7 +220,8 @@ extension DoTickViewController: UISearchBarDelegate{
             
             //search using keyword from text
             let predicate = NSPredicate(format: "title CONTAINS[cd]  %@", searchBar.text!)
-            request.predicate = predicate
+            
+            //request.predicate = predicate
             
             //sort data
             
@@ -195,7 +229,7 @@ extension DoTickViewController: UISearchBarDelegate{
             
             request.sortDescriptors = [sortDescriptor]
             
-            loadItems(with: request)
+            loadItemsFromSearch(with: request, and: predicate)
             
         }
         

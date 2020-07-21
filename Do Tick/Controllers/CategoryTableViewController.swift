@@ -11,48 +11,116 @@ import CoreData
 
 class CategoryTableViewController: UITableViewController {
     
+   var categoryArray = [CategoryItem]()
     
-
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        loadCategories()
+   
     }
     
     //MARK: - add new categories
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        var textfield = UITextField()
+        
+        let alert = UIAlertController(title: "Add New Category to Do Tick", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
+            // what will happen when user clicks ui alert
+            
+            //using coredata
+            
+            if textfield.text != ""{
+                
+                let newCategory = CategoryItem(context: self.context)
+                newCategory.name = textfield.text!
+                self.categoryArray.append(newCategory)
+                self.saveCategories()
+                
+            }
+            
+        }
+        
+        //add textfield to ui alert
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textfield = alertTextField
+        }
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
         
         
     }
     
+    //MARK: - save items
     
+    func saveCategories(){
+        
+        do{
+            try context.save()
+        }catch{
+            print("error saving context \(error)")
+        }
+        
+        self.tableView.reloadData()
+    }
     
+    //MARK: - load items
     
+    // = means if you don't pass a request parameter it will take a default value
+    func loadCategories(with request: NSFetchRequest<CategoryItem> = CategoryItem.fetchRequest() ){
+        do{
+            categoryArray = try context.fetch(request)
+            
+        }catch{
+            print("Error fetching data from context")
+            
+        }
+        
+        tableView.reloadData()
+    }
     
-    
-    
-
     // MARK: - Table view data source
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
-    }
-
+    
+    
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return categoryArray.count
     }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        
+        let category = categoryArray[indexPath.row]
+        
+        cell.textLabel?.text = category.name
+        
+        
+        return cell
+    }
+    
     
     //MARK: - TableView Delegate Methods
     
     
-    //Mark: - Data Manipulation Methods
-
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        performSegue(withIdentifier: "goToItems", sender: self)
+        
+    }
     
-
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationVC = segue.destination as! DoTickViewController
+        
+        if let indexPath = tableView.indexPathForSelectedRow{
+            destinationVC.selectedCategory = categoryArray[indexPath.row]
+            
+        }
+    }
+    
+    
+    
 }
