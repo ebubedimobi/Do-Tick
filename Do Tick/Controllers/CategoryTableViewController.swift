@@ -18,6 +18,8 @@ class CategoryTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.register(UINib(nibName: "CategoryTableViewCell", bundle: nil), forCellReuseIdentifier: "CategoryCell")
+        
         loadCategories()
         
     }
@@ -34,6 +36,7 @@ class CategoryTableViewController: UITableViewController {
                 
                 let newCategory = CategoryItem()
                 newCategory.name = textfield.text!
+                newCategory.dateCreated = Date()
                 
                 
                 //no need to update categories as Result<categories is autoupdating by itself
@@ -75,7 +78,7 @@ class CategoryTableViewController: UITableViewController {
     
     func loadCategories(){
         
-        categories = realm.objects(CategoryItem.self)
+        categories = realm.objects(CategoryItem.self).sorted(byKeyPath: "dateCreated", ascending: false)
         
         tableView.reloadData()
     }
@@ -91,11 +94,24 @@ class CategoryTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! CategoryTableViewCell
         
         let category = categories?[indexPath.row]
         
         cell.textLabel?.text = category?.name ?? "No Categories added yet"
+        
+        //convert date to string
+        if let date = category?.dateCreated{
+            
+            let dateFormatter = DateFormatter()
+
+            dateFormatter.dateStyle = .short
+
+            dateFormatter.timeStyle = .none
+        
+            cell.dateLabel.text = dateFormatter.string(from: date)
+        }
+       
         
         
         return cell
