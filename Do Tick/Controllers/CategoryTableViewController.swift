@@ -7,18 +7,19 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
     
-   var categoryArray = [CategoryItem]()
+    let realm = try! Realm()
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var categories: Results<CategoryItem>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         loadCategories()
-   
+        
     }
     
     //MARK: - add new categories
@@ -29,14 +30,16 @@ class CategoryTableViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
             // what will happen when user clicks ui alert
             
-            //using coredata
-            
-            if textfield.text != ""{
+            if textfield.text != "" {
                 
-                let newCategory = CategoryItem(context: self.context)
+                let newCategory = CategoryItem()
                 newCategory.name = textfield.text!
-                self.categoryArray.append(newCategory)
-                self.saveCategories()
+                
+                
+                //no need to update categories as Result<categories is autoupdating by itself
+                // saving it updates the array and also updates the local persistent data
+                self.saveCategories(with: newCategory)
+               
                 
             }
             
@@ -55,10 +58,12 @@ class CategoryTableViewController: UITableViewController {
     
     //MARK: - save items
     
-    func saveCategories(){
+    func saveCategories(with category: CategoryItem){
         
         do{
-            try context.save()
+            try realm.write{
+                realm.add(category)
+            }
         }catch{
             print("error saving context \(error)")
         }
@@ -68,15 +73,9 @@ class CategoryTableViewController: UITableViewController {
     
     //MARK: - load items
     
-    // = means if you don't pass a request parameter it will take a default value
-    func loadCategories(with request: NSFetchRequest<CategoryItem> = CategoryItem.fetchRequest() ){
-        do{
-            categoryArray = try context.fetch(request)
-            
-        }catch{
-            print("Error fetching data from context")
-            
-        }
+    func loadCategories(){
+        
+        categories = realm.objects(CategoryItem.self)
         
         tableView.reloadData()
     }
@@ -86,17 +85,17 @@ class CategoryTableViewController: UITableViewController {
     
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return categoryArray.count
+        
+        return categories?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        let category = categoryArray[indexPath.row]
+        let category = categories?[indexPath.row]
         
-        cell.textLabel?.text = category.name
+        cell.textLabel?.text = category?.name ?? "No Categories added yet"
         
         
         return cell
@@ -112,11 +111,12 @@ class CategoryTableViewController: UITableViewController {
         
     }
     
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! DoTickViewController
         
         if let indexPath = tableView.indexPathForSelectedRow{
-            destinationVC.selectedCategory = categoryArray[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
             
         }
     }

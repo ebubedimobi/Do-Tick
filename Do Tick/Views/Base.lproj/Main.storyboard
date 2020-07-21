@@ -45,7 +45,7 @@
             </objects>
             <point key="canvasLocation" x="1638" y="147"/>
         </scene>
-        <!--Do Tick-->
+        <!--Items-->
         <scene sceneID="f8L-9o-8kP">
             <objects>
                 <tableViewController id="RbS-cU-l3Q" customClass="DoTickViewController" customModule="Do_Tick" customModuleProvider="target" sceneMemberID="viewController">
@@ -76,7 +76,7 @@
                             <outlet property="delegate" destination="RbS-cU-l3Q" id="KhJ-Vw-RdT"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Do Tick" id="ot9-al-Ghf">
+                    <navigationItem key="navigationItem" title="Items" id="ot9-al-Ghf">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="6hx-3K-VBx">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>

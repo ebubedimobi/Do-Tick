@@ -7,12 +7,14 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class DoTickViewController: UITableViewController {
     
     
-    var itemArray = [Item]()
+    var todoItems: Results<Item>?
+    let realm = try! Realm()
+    
     var selectedCategory: CategoryItem? {
         
         didSet{
@@ -20,9 +22,7 @@ class DoTickViewController: UITableViewController {
         }
     }
     
-    //creating a file path
-    //let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,21 +40,29 @@ class DoTickViewController: UITableViewController {
             
             //using coredata
             
-            if textfield.text != ""{
+            if let currentCategory = self.selectedCategory{
                 
-                let newItem = Item(context: self.context)
-                newItem.title = textfield.text!
-                newItem.done = false
-                
-                //give the name of new item the name of parent category
-                newItem.parentCategory = self.selectedCategory
-                self.itemArray.append(newItem)
-                self.saveItems()
-                
-                
-                //self.loadItems()
-                
+                if textfield.text != ""{
+                    do{
+                        
+                        //try to save new data
+                        try self.realm.write{
+                            
+                            let newTodoItem = Item()
+                            newTodoItem.title = textfield.text!
+                            newTodoItem.done = false
+                            newTodoItem.dateCreated = Date()
+                            currentCategory.items.append(newTodoItem)
+                        }
+                    }catch {
+                        print("Error saving new items, \(error)")
+                    }
+                }
+                self.tableView.reloadData()
             }
+            
+            
+            
             
         }
         
@@ -67,57 +75,21 @@ class DoTickViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK: - save items
     
-    func saveItems(){
-        
-        do{
-            try context.save()
-        }catch{
-            print("error saving context \(error)")
-        }
-        
-        self.tableView.reloadData()
-    }
     
     //MARK: - load items
     
     // = means if you don't pass a request parameter it will take a default value
     func loadItems(){
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
         
-        let predicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name! )
+        //load data sorted
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         
-        request.predicate = predicate
-        
-        do{
-            itemArray = try context.fetch(request)
-        }catch{
-            print("Error fetching data from context")
-            
-        }
         
         tableView.reloadData()
         
     }
     
-    func loadItemsFromSearch(with request: NSFetchRequest<Item>, and predicate: NSPredicate ){
-         let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name! )
-        
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
-        
-        request.predicate = compoundPredicate
-        
-         do{
-             itemArray = try context.fetch(request)
-         }catch{
-             print("Error fetching data from context")
-             
-         }
-         
-         tableView.reloadData()
-         
-     }
     
 }
 //MARK: - TableView Datasource Method
@@ -125,7 +97,7 @@ class DoTickViewController: UITableViewController {
 extension DoTickViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     
@@ -133,14 +105,20 @@ extension DoTickViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        let item = itemArray[indexPath.row]
+        if  let item = todoItems?[indexPath.row]{
+            
+            cell.textLabel?.text = item.title
+            
+            //Tenary operator ==>
+            // Value = condition ? valueIfTrue : valueIfFalse
+            
+            cell.accessoryType = item.done == true ? .checkmark : .none
+        }else {
+            
+            cell.textLabel?.text = "No Items Added"
+        }
         
-        cell.textLabel?.text = item.title
         
-        //Tenary operator ==>
-        // Value = condition ? valueIfTrue : valueIfFalse
-        
-        cell.accessoryType = item.done == true ? .checkmark : .none
         
         return cell
     }
@@ -154,21 +132,23 @@ extension DoTickViewController{
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //change the done property
+        //remember classes is reference not value
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        
-        //delete data
-        //        context.delete(itemArray[indexPath.row])
-        //        itemArray.remove(at: indexPath.row)
-        
-        
-        //a different way to update data in database
-        //itemArray[indexPath.row].setValue("Completed", forKey: "title")
-        
-        self.saveItems()
-        
-        
+        if let item = todoItems?[indexPath.row]{
+            do{
+                try realm.write {
+                    item.done = !item.done
+                    
+                }
+                
+            }catch{
+                print("Error when changing data\(error)")
+                
+            }
+            
+            tableView.reloadData()
+            
+        }
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
@@ -177,28 +157,16 @@ extension DoTickViewController{
 }
 
 //MARK: - UISearchBarDelegate
+//MARK: - Query from Realm
 
 extension DoTickViewController: UISearchBarDelegate{
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
         
-        //search using keyword from text
-        let predicate = NSPredicate(format: "title CONTAINS[cd]  %@", searchBar.text!)
-        request.predicate = predicate
-        
-        //sort data
-        
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-        
-        request.sortDescriptors = [sortDescriptor]
-        
-        loadItemsFromSearch(with: request, and: predicate)
-        
-        
+        todoItems = todoItems?.filter("title CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        tableView.reloadData()
         
     }
-    
     
     
     //starts searching once person starts typing
@@ -206,32 +174,18 @@ extension DoTickViewController: UISearchBarDelegate{
         
         if searchBar.text?.count == 0{
             
-            
-          //same as  searchBar.endEditing(true)
+            loadItems()
+            //same as  searchBar.endEditing(true)
             
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
             }
             loadItems()
+        }else {
+            todoItems = todoItems?.filter("title CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
             
-        }else{
-            
-            let request : NSFetchRequest<Item> = Item.fetchRequest()
-            
-            //search using keyword from text
-            let predicate = NSPredicate(format: "title CONTAINS[cd]  %@", searchBar.text!)
-            
-            //request.predicate = predicate
-            
-            //sort data
-            
-            let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-            
-            request.sortDescriptors = [sortDescriptor]
-            
-            loadItemsFromSearch(with: request, and: predicate)
+            tableView.reloadData()
             
         }
-        
     }
 }
