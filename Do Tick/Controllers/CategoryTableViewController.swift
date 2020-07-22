@@ -98,59 +98,49 @@ class CategoryTableViewController: UITableViewController {
     
     func checkIfDone(){
         
-        var done = true
+        
         
         if categories != nil{
             
-            if categories!.count != 0{
-                for x in 0 ... categories!.count - 1 {
-                    
-                    
-                    //print(categories![x])
-                    if categories![x].items.count != 0 {
-                        for j in 0 ... categories![x].items.count - 1{
-                            
-                            
-                            if categories![x].items[j].done == false{
-                                
-                                //print(categories![x].items[j].done)
-                                
-                                done = false
-                            }
-                            
-                            
-                        }
-                        do{
-                            try realm.write{
-                                
-                                if done == true{
-                                    
-                                    categories![x].done = true
-                                }else {
-                                    categories![x].done = false
-                                }
-                                
-                                
-                            }
-                            
-                        }catch {
-                            print("error while changing done \(error)")
+            
+            for x in 0 ... categories!.count - 1 {
+                
+                var done = true
+                //print(categories![x])
+                if categories![x].items.count != 0 {
+                
+                    for j in 0 ... categories![x].items.count - 1{
+                        
+                        
+                        if categories![x].items[j].done == false{
+                            //print(categories![x].items[j].done)
+                            done = false
                         }
                         
-                    }else {
                         
-                        do{
-                            try realm.write{
-                                categories![x].done = false
-                                
-                            }
-                            
-                        }catch {
-                            print("error while changing done \(error)")
-                        }
                     }
+                    
+                    
                 }
+                else if categories![x].items.count == 0 {
+                    done = false
+
+                }
+                
+                do {
+                    try realm.write{
+                        
+                            categories![x].done = done
+                    }
+                    
+                }catch{
+                    
+                    print(error)
+                }
+                
+                
             }
+            
         }
         
     }
