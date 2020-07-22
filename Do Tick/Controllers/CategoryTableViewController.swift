@@ -22,6 +22,14 @@ class CategoryTableViewController: UITableViewController {
         
         loadCategories()
         
+        
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        loadCategories()
     }
     
     //MARK: - add new categories
@@ -42,7 +50,7 @@ class CategoryTableViewController: UITableViewController {
                 //no need to update categories as Result<categories is autoupdating by itself
                 // saving it updates the array and also updates the local persistent data
                 self.saveCategories(with: newCategory)
-               
+                
                 
             }
             
@@ -80,7 +88,83 @@ class CategoryTableViewController: UITableViewController {
         
         categories = realm.objects(CategoryItem.self).sorted(byKeyPath: "dateCreated", ascending: false)
         
+        checkIfDone()
+        
         tableView.reloadData()
+        
+        
+        
+    }
+    
+    func checkIfDone(){
+        
+        var done = true
+        
+        if categories != nil{
+            
+            for x in 0 ... categories!.count - 1 {
+                
+                
+                //print(categories![x])
+                if categories![x].items.count != 0 {
+                    for j in 0 ... categories![x].items.count - 1{
+                        
+                        
+                        if categories![x].items[j].done == false{
+                            
+                            //print(categories![x].items[j].done)
+                            
+                            done = false
+                        }
+                        
+                        
+                    }
+                    do{
+                        try realm.write{
+                            
+                            if done == true{
+                                
+                                categories![x].done = true
+                            }else {
+                                categories![x].done = false
+                            }
+                            
+                            
+                        }
+                        
+                    }catch {
+                        print("error while changing done \(error)")
+                    }
+                    
+                }else {
+                    
+                    do{
+                        try realm.write{
+                                categories![x].done = false
+                            
+                        }
+                        
+                    }catch {
+                        print("error while changing done \(error)")
+                    }
+                }
+            }
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
     
     // MARK: - Table view data source
@@ -101,17 +185,19 @@ class CategoryTableViewController: UITableViewController {
         cell.textLabel?.text = category?.name ?? "No Categories added yet"
         
         //convert date to string
-        if let date = category?.dateCreated{
+        if let date = category?.dateCreated {
             
             let dateFormatter = DateFormatter()
-
+            
             dateFormatter.dateStyle = .short
-
+            
             dateFormatter.timeStyle = .none
-        
+            
             cell.dateLabel.text = dateFormatter.string(from: date)
         }
-       
+        
+        cell.accessoryType = category?.done == true ? .checkmark : .none
+        
         
         
         return cell
@@ -169,7 +255,7 @@ extension CategoryTableViewController: UISearchBarDelegate{
             }
             loadCategories()
         }else {
-           categories = categories?.filter("name CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+            categories = categories?.filter("name CONTAINS[cd]  %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
             tableView.reloadData()
         }
     }
