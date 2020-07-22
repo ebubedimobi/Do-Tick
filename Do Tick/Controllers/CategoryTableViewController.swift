@@ -102,45 +102,45 @@ class CategoryTableViewController: UITableViewController {
         
         if categories != nil{
             
-            
-            for x in 0 ... categories!.count - 1 {
-                
-                var done = true
-                //print(categories![x])
-                if categories![x].items.count != 0 {
-                
-                    for j in 0 ... categories![x].items.count - 1{
+            if categories!.count != 0{
+                for x in 0 ... categories!.count - 1 {
+                    
+                    var done = true
+                    //print(categories![x])
+                    if categories![x].items.count != 0 {
                         
-                        
-                        if categories![x].items[j].done == false{
-                            //print(categories![x].items[j].done)
-                            done = false
+                        for j in 0 ... categories![x].items.count - 1{
+                            
+                            
+                            if categories![x].items[j].done == false{
+                                //print(categories![x].items[j].done)
+                                done = false
+                            }
+                            
+                            
                         }
                         
                         
                     }
-                    
-                    
-                }
-                else if categories![x].items.count == 0 {
-                    done = false
-
-                }
-                
-                do {
-                    try realm.write{
+                    else if categories![x].items.count == 0 {
+                        done = false
                         
-                            categories![x].done = done
                     }
                     
-                }catch{
+                    do {
+                        try realm.write{
+                            
+                            categories![x].done = done
+                        }
+                        
+                    }catch{
+                        
+                        print(error)
+                    }
                     
-                    print(error)
+                    
                 }
-                
-                
             }
-            
         }
         
     }
