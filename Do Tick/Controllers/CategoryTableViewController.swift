@@ -102,68 +102,56 @@ class CategoryTableViewController: UITableViewController {
         
         if categories != nil{
             
-            for x in 0 ... categories!.count - 1 {
-                
-                
-                //print(categories![x])
-                if categories![x].items.count != 0 {
-                    for j in 0 ... categories![x].items.count - 1{
-                        
-                        
-                        if categories![x].items[j].done == false{
+            if categories!.count != 0{
+                for x in 0 ... categories!.count - 1 {
+                    
+                    
+                    //print(categories![x])
+                    if categories![x].items.count != 0 {
+                        for j in 0 ... categories![x].items.count - 1{
                             
-                            //print(categories![x].items[j].done)
                             
-                            done = false
-                        }
-                        
-                        
-                    }
-                    do{
-                        try realm.write{
-                            
-                            if done == true{
+                            if categories![x].items[j].done == false{
                                 
-                                categories![x].done = true
-                            }else {
-                                categories![x].done = false
+                                //print(categories![x].items[j].done)
+                                
+                                done = false
                             }
                             
                             
                         }
-                        
-                    }catch {
-                        print("error while changing done \(error)")
-                    }
-                    
-                }else {
-                    
-                    do{
-                        try realm.write{
-                                categories![x].done = false
+                        do{
+                            try realm.write{
+                                
+                                if done == true{
+                                    
+                                    categories![x].done = true
+                                }else {
+                                    categories![x].done = false
+                                }
+                                
+                                
+                            }
                             
+                        }catch {
+                            print("error while changing done \(error)")
                         }
                         
-                    }catch {
-                        print("error while changing done \(error)")
+                    }else {
+                        
+                        do{
+                            try realm.write{
+                                categories![x].done = false
+                                
+                            }
+                            
+                        }catch {
+                            print("error while changing done \(error)")
+                        }
                     }
                 }
             }
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
     }
     
