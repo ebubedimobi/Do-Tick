@@ -175,7 +175,7 @@ class CategoryTableViewController: UITableViewController {
         }
         
         cell.accessoryType = category?.done == true ? .checkmark : .none
-        
+        cell.tintColor = .green
         
         
         return cell
@@ -201,13 +201,99 @@ class CategoryTableViewController: UITableViewController {
         }
     }
     
+    //MARK: - swipe action delegate methods
+    
+    //swipe from right
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let trash = deleteAction(at: indexPath)
+        return UISwipeActionsConfiguration(actions:[trash])
+    }
+    
+    
+    func deleteAction(at indexPath: IndexPath) -> UIContextualAction{
+        
+        
+        
+        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
+            
+            if let categoryForDeletion = self.categories?[indexPath.row]{
+                do{
+                    
+                    try self.realm.write{
+                        
+                        self.realm.delete(categoryForDeletion)
+                        completion(true)
+                    }
+                }catch{
+                    print("Error while deleting")
+                    completion(false)
+                }
+                
+                self.tableView.reloadData()
+            }
+            
+        }
+        action.image = UIImage(systemName: "trash")
+        action.backgroundColor = .red
+        
+        return action
+        
+    }
+    
+    
+    //swipe from left
+    
+    override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let done = doneAction(at: indexPath)
+        return UISwipeActionsConfiguration(actions:[done])
+    }
+    
+    func doneAction(at indexPath: IndexPath) -> UIContextualAction{
+        
+        
+        
+        let action = UIContextualAction(style: .normal, title: "Delete") { (action, view, completion) in
+            
+            if let categoryForSettingToDone = self.categories?[indexPath.row]{
+                do{
+                    
+                    try self.realm.write{
+                        
+                        if categoryForSettingToDone.items.count != 0{
+                            for item in categoryForSettingToDone.items{
+                                
+                                item.done = true
+                            }
+                            categoryForSettingToDone.done = true
+                        }
+                        
+                        completion(true)
+                    }
+                }catch{
+                    print("Error while deleting")
+                    completion(false)
+                }
+                
+                self.tableView.reloadData()
+            }
+            
+        }
+        action.image = UIImage(systemName: "checkmark")
+        action.backgroundColor = .green
+        
+        return action
+        
+    }
+    
     
     
 }
 
 
 //MARK: - UISearchBarDelegate
-//MARK: - Query from Realm
+//MARK: - Query and search from Realm
 
 extension CategoryTableViewController: UISearchBarDelegate{
     
