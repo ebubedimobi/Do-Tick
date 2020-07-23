@@ -254,34 +254,60 @@ class CategoryTableViewController: UITableViewController {
         
         
         
-        let action = UIContextualAction(style: .normal, title: "Delete") { (action, view, completion) in
-            
+        let action = UIContextualAction(style: .normal, title: "Done") { (action, view, completion) in
+        
             if let categoryForSettingToDone = self.categories?[indexPath.row]{
-                do{
-                    
-                    try self.realm.write{
+                if categoryForSettingToDone.done == false {
+                    do{
                         
-                        if categoryForSettingToDone.items.count != 0{
-                            for item in categoryForSettingToDone.items{
-                                
-                                item.done = true
+                        try self.realm.write{
+                            
+                            if categoryForSettingToDone.items.count != 0{
+                                for item in categoryForSettingToDone.items{
+                                    
+                                    item.done = true
+                                }
+                                categoryForSettingToDone.done = true
                             }
-                            categoryForSettingToDone.done = true
+                            completion(true)
                         }
-                        
-                        completion(true)
+                    }catch{
+                        print("Error while deleting")
+                        completion(false)
                     }
-                }catch{
-                    print("Error while deleting")
-                    completion(false)
+                    
+                    
+                    
+                }else {
+                    do{
+                        
+                        try self.realm.write{
+                            
+                            if categoryForSettingToDone.items.count != 0{
+                                for item in categoryForSettingToDone.items{
+                                    
+                                    item.done = false
+                                }
+                                categoryForSettingToDone.done = false
+                            }
+                            completion(true)
+                        }
+                    }catch{
+                        print("Error while deleting")
+                        completion(false)
+                    }
+                    
+                   
+                    
                 }
-                
                 self.tableView.reloadData()
             }
-            
         }
-        action.image = UIImage(systemName: "checkmark")
-        action.backgroundColor = .green
+        
+        action.image = categories?[indexPath.row].done == true ? UIImage(systemName: "pencil.slash") : UIImage(systemName: "checkmark")
+        
+        action.backgroundColor = categories?[indexPath.row].done == true ? .blue : .green
+        
         
         return action
         
