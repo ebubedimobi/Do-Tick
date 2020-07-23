@@ -337,7 +337,7 @@ extension CategoryTableViewController: UISearchBarDelegate{
         
         if searchBar.text?.count == 0{
             
-            loadCategories()
+           
             //same as  searchBar.endEditing(true)
             
             DispatchQueue.main.async {
