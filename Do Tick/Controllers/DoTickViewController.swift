@@ -156,6 +156,45 @@ extension DoTickViewController{
     }
     
     
+    //swipe from right
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let trash = deleteAction(at: indexPath)
+        return UISwipeActionsConfiguration(actions:[trash])
+    }
+    
+    
+    func deleteAction(at indexPath: IndexPath) -> UIContextualAction{
+        
+        
+        
+        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
+            
+            if let categoryForDeletion = self.todoItems?[indexPath.row]{
+                do{
+                    
+                    try self.realm.write{
+                        
+                        self.realm.delete(categoryForDeletion)
+                        completion(true)
+                    }
+                }catch{
+                    print("Error while deleting")
+                    completion(false)
+                }
+                
+                self.tableView.reloadData()
+            }
+            
+        }
+        action.image = UIImage(systemName: "trash")
+        action.backgroundColor = .red
+        
+        return action
+        
+    }
+    
+    
 }
 
 //MARK: - UISearchBarDelegate
